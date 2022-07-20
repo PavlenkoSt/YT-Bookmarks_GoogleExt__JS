@@ -5,6 +5,14 @@
   let currentVideoBookmarks = []
   let currentVideo = ''
 
+  const fetchBookmarks = () => {
+    return new Promise(resolve => {
+      chrome.storage.sync.get([currentVideo], obj => {
+        resolve(obj[currentVideo] ? JSON.parse(obj[currentVideo]) : [])
+      })
+    })
+  }
+
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
     const { type, value, videoId } = obj
 
@@ -13,14 +21,6 @@
       newVideoLoaded()
     }
   })
-
-  const fetchBookmarks = () => {
-    return new Promise(resovle => {
-      chrome.storage.sync.get([currentVideo], obj => {
-        resovle(obj[currentVideo] ? JSON.parse(obj[currentVideo]) : [])
-      })
-    })
-  }
 
   const newVideoLoaded = async () => {
     const bookmarkBtn = document.getElementById('bookmark-btn')
