@@ -1,8 +1,35 @@
 import { getActiveTabURL } from './utils.js'
 
-const addNewBookmark = () => {}
+const addNewBookmark = (bookmarks, bookmark) => {
+  const bookmarkTitleElement = document.createElement('div')
+  const newBookmarkElement = document.createElement('div')
 
-const viewBookBookmarks = () => {}
+  bookmarkTitleElement.textContent = bookmark.desc
+  bookmarkTitleElement.className = 'bookmark-title'
+
+  newBookmarkElement.id = `bookmark-${bookmark.time}`
+  newBookmarkElement.className = 'bookmark'
+  newBookmarkElement.setAttribute('timestamp', bookmark.time)
+
+  newBookmarkElement.appendChild(bookmarkTitleElement)
+  bookmarks.appendChild(newBookmarkElement)
+}
+
+const viewBookmarks = (currentBookmarks = []) => {
+  const bookmarksElement = document.getElementById('bookmarks')
+  bookmarksElement.innerHTML = ''
+
+  if (currentBookmarks.length > 0) {
+    for (let i = 0; i < currentBookmarks.length; i++) {
+      const bookmark = currentBookmarks[i]
+      addNewBookmark(bookmarksElement, bookmark)
+    }
+  } else {
+    bookmarksElement.innerHTML = '<i class="row">No bookmarks to show</i>'
+  }
+
+  return
+}
 
 const onPlay = () => {}
 

@@ -13,17 +13,26 @@
     })
   }
 
-  chrome.runtime.onMessage.addListener((obj, sender, response) => {
-    const { type, value, videoId } = obj
+  const addNewTimestampMark = async () => {
+    const currentTime = youtubePlayer.currentTime
 
-    if (type === 'NEW') {
-      currentVideo = videoId
-      newVideoLoaded()
+    const newBookmark = {
+      time: currentTime,
+      desc: `Bookmark at ${getTime(currentTime)}`,
     }
-  })
+
+    console.log('newBookmark', newBookmark)
+
+    currentVideoBookmarks = await fetchBookmarks()
+
+    chrome.storage.sync.set({
+      [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time)),
+    })
+  }
 
   const newVideoLoaded = async () => {
     const bookmarkBtn = document.getElementById('bookmark-btn')
+
     currentVideoBookmarks = await fetchBookmarks()
 
     if (!bookmarkBtn) {
@@ -47,32 +56,26 @@
       youtubeBtnsPanel = document.getElementsByClassName('ytp-left-controls')[0]
       youtubePlayer = document.getElementsByClassName('video-stream')[0]
 
-      bookmarkBtn.addEventListener('click', addNewTimestampMark)
-
       youtubeBtnsPanel.appendChild(bookmarkBtn)
+
+      bookmarkBtn.addEventListener('click', addNewTimestampMark)
     }
   }
 
-  const addNewTimestampMark = async () => {
-    const currentTime = youtubePlayer.currentTime
+  chrome.runtime.onMessage.addListener((obj, sender, response) => {
+    const { type, value, videoId } = obj
 
-    const newBookmark = {
-      time: currentTime,
-      desc: `Bookmark at ${getTime(currentTime)}`,
+    if (type === 'NEW') {
+      currentVideo = videoId
+      newVideoLoaded()
     }
-
-    currentVideoBookmarks = await fetchBookmarks()
-
-    chrome.storage.sync.set({
-      [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time)),
-    })
-  }
+  })
 
   newVideoLoaded()
 })()
 
 const getTime = seconds => {
-  const date = new Date()
+  const date = new Date(0)
   date.setSeconds(seconds)
 
   return date.toISOString().substr(11, 8)
