@@ -1,4 +1,4 @@
-chrome.tabs.onUpdated.addListener((tabId, tab) => {
+const activateTab = (tabId, tab) => {
   if (tab.url && tab.url.includes('youtube.com/watch')) {
     const unicVideoQuery = tab.url.split('?')[1]
     const urlParams = new URLSearchParams(unicVideoQuery)
@@ -8,4 +8,6 @@ chrome.tabs.onUpdated.addListener((tabId, tab) => {
       videoId: urlParams.get('v'),
     })
   }
-})
+}
+
+chrome.tabs.onUpdated.addListener((tabId, tab) => activateTab(tabId, tab))

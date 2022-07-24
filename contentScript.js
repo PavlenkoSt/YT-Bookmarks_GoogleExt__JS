@@ -21,8 +21,6 @@
       desc: `Bookmark at ${getTime(currentTime)}`,
     }
 
-    console.log('newBookmark', newBookmark)
-
     currentVideoBookmarks = await fetchBookmarks()
 
     chrome.storage.sync.set({
@@ -68,8 +66,27 @@
     if (type === 'NEW') {
       currentVideo = videoId
       newVideoLoaded()
+    } else if (type === 'PLAY') {
+      youtubePlayer.currentTime = value
+    } else if (type === 'DELETE') {
+      currentVideoBookmarks = currentVideoBookmarks.filter(bookmark => bookmark.time != value)
+      chrome.storage.sync.set({ [currentVideo]: JSON.stringify(currentVideoBookmarks) })
+
+      response(currentVideoBookmarks)
     }
   })
+
+  const activateTab = (tabId, tab) => {
+    if (tab.url && tab.url.includes('youtube.com/watch')) {
+      const unicVideoQuery = tab.url.split('?')[1]
+      const urlParams = new URLSearchParams(unicVideoQuery)
+
+      chrome.tabs.sendMessage(tabId, {
+        type: 'NEW',
+        videoId: urlParams.get('v'),
+      })
+    }
+  }
 
   newVideoLoaded()
 })()
